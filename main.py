@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 app = Flask(__name__)
@@ -31,9 +31,20 @@ todo_list = '''[
   }
 ]'''
 
+json_todo = json.loads(todo_list)
+
 @app.route("/")
 def hello():
-    return todo_list
+    return jsonify(json_todo)
+
+
+@app.route("/add", methods=['POST'])
+def add():
+  request_json = request.get_json()
+  print(request_json)
+  json_todo.append(request_json)
+  print(json_todo)
+  return str(json_todo)
 
 if __name__ == "__main__":
     app.run(debug=True)
