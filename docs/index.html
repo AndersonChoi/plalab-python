@@ -2,47 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>나만의 TO-DO</title>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-	<title>Plalab study</title>
 </head>
 <body>
-    <h1>TO-DO list</h1>
-    <button id="getList" type="button" class="btn btn-primary">Get list</button>
-    <div id="list"></div>
+
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                원영's TO-DO
+            </h1>
+        </div>
+    </div>
+</section>
+
+<section id="user_list" class="section">
+    <div class="field is-grouped">
+        <p class="control is-expanded">
+            <input id="inputTodo" class="input" type="text" placeholder="Add todo descriptions">
+        </p>
+        <p class="control" style="margin-bottom: 30px;">
+            <button id="addList" class="button is-primary">
+                Add
+            </button>
+            <button id="getList" type="button" class="button is-second" style="margin-left: 10px; display:none;">
+                Get
+            </button>
+        </p>
+    </div>
+    <div id="list">
+    </div>
+</section>
 
 <script>
+    $('#getList').click(function () {
+        getToDoList()
+    });
+    $('#addList').click(function () {
+        if ($('#inputTodo').val() === '') {
+            alert('Todo 내용을 입력해주세요');
+        } else {
+            addToDoList()
+        }
+    });
 
+    function addToDoList() {
+        $.ajax({
+            "url": "http://localhost:5000/add",
+            "type": "POST",
+            "contentType": "application/json",
+            "data": JSON.stringify({"title": $('#inputTodo').val()}),
+            "dataType": "json",
+            "complete": function () {
+                getToDoList();
+            }
+        });
+    }
 
-	$('#getList').click(function(){
-		getToDoList()
-	});
+    function deleteTodo(index) {
+        $.ajax({
+            "url": "http://localhost:5000/delete",
+            "type": "delete",
+            "contentType": "application/json",
+            "data": JSON.stringify({"id": Number(index)}),
+            "dataType": "json",
+            "complete": function () {
+                getToDoList();
+            }
+        });
+    }
 
-	function getToDoList(){
-		$.ajax({
-		    "url" : "http://flask.ap-northeast-2.elasticbeanstalk.com/",
-		    "type" : "get",
-		    "dataType": "json",
-		    "success" : function(result){
-				 setList(result);
-			}
-		});
+    function getToDoList() {
+        $.ajax({
+            "url": "http://localhost:5000/",
+            "type": "get",
+            "dataType": "json",
+            "success": function (result) {
+                setList(result);
+            }
+        });
+    }
 
-	}
+    function setList(data) {
+        console.log(data);
+        $("#list").empty();
+        var html = "";
+        $.each(data, function (index, item) {
+            console.log(item);
+            html += "<div class=\"columns box\" style=\"margin-bottom: 30px;\">\n" +
+                "              <div class=\"column title \">" + item.title + "<button id=\""+item.id+"\" name=\"deleteTodo\" class=\"button is-danger is-outlined is-pulled-right\">\n" +
+                "                <i class=\"fas fa-times\"></i>\n" +
+                "            </button></div>\n" +
+                "                </div>";
+        });
+        ;
+        $("#list").append(html);
 
-	function setList(data){
-		$("#list").empty();
-		var html="<ul>";
-		$.each(data, function (index, item) {
-		    console.log(item);
-		    html += "<li>"+item.title +"</li>";
-		});
-		html += "</ul>" ;
-		$("#list").append(html);
-	}
+        $('[name="deleteTodo"]').click(function () {
+            deleteTodo($(this).attr('id'));
+        });
+    }
+
+    $(document).ready(function () {
+        getToDoList();
+    });
+
 </script>
 </body>
 </html>
