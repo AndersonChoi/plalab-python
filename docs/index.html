@@ -41,6 +41,7 @@
 </section>
 
 <script>
+    var hostname = 'plalab-env.ybikvzykqp.ap-northeast-2.elasticbeanstalk.com';
     $('#getList').click(function () {
         getToDoList()
     });
@@ -54,7 +55,7 @@
 
     function addToDoList() {
         $.ajax({
-            "url": "http://localhost:5000/add",
+            "url": "http://"+hostname+"/add",
             "type": "POST",
             "contentType": "application/json",
             "data": JSON.stringify({"title": $('#inputTodo').val()}),
@@ -67,7 +68,7 @@
 
     function deleteTodo(index) {
         $.ajax({
-            "url": "http://localhost:5000/delete",
+            "url": "http://"+hostname+"/delete",
             "type": "delete",
             "contentType": "application/json",
             "data": JSON.stringify({"id": Number(index)}),
@@ -80,7 +81,7 @@
 
     function getToDoList() {
         $.ajax({
-            "url": "http://localhost:5000/",
+            "url": "http://"+hostname+"/",
             "type": "get",
             "dataType": "json",
             "success": function (result) {
